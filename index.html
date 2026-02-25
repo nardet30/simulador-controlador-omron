@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Omron E5CC - Senior Instrumentation</title>
+  <meta name="description"
+    content="Simulador interactivo del controlador de temperatura Omron E5CC con algoritmos PID y Autotuning.">
+  <link rel="stylesheet" href="/src/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="app">
+    <div class="simulator-container">
+      <!-- Omron E5CC Chassis (48x48 aspect ratio) -->
+      <div class="e5cc-chassis" id="e5cc-device">
+        <div class="front-panel">
+          <!-- Brand and Model -->
+          <div class="brand-header">
+            <span class="brand">OMRON</span>
+            <span class="model">E5CC</span>
+          </div>
+
+          <!-- Main Display Area -->
+          <div class="display-area">
+            <!-- LED Indicators (Left Side) -->
+            <div class="status-indicators">
+              <div class="indicator" id="ind-out1">OUT1</div>
+              <div class="indicator" id="ind-out2">OUT2</div>
+              <div class="indicator" id="ind-sub1">SUB1</div>
+              <div class="indicator" id="ind-sub2">SUB2</div>
+              <div class="indicator" id="ind-sub3">SUB3</div>
+            </div>
+
+            <!-- Main Digits -->
+            <div class="digits-container">
+              <div class="pv-display">
+                <span id="pv-value" class="segment-display white">0000</span>
+              </div>
+              <div class="sv-display">
+                <span id="sv-value" class="segment-display green">0000</span>
+              </div>
+            </div>
+
+            <!-- Bottom Indicators & Icons -->
+            <div class="bottom-indicators">
+              <div class="indicator" id="ind-tune">TUNE</div>
+              <div class="indicator" id="ind-stop">STOP</div>
+              <div class="indicator" id="ind-cmw">CMW</div>
+              <div class="indicator" id="ind-rsp">RSP</div>
+              <div class="indicator" id="ind-manu">MANU</div>
+              <div class="indicator icon" id="ind-lock">
+                <svg viewBox="0 0 24 24" width="10" height="10">
+                  <path fill="currentColor"
+                    d="M12,2A5,5 0 0,1 17,7V10H18A2,2 0 0,1 20,12V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V12A2,2 0 0,1 6,10H7V7A5,5 0 0,1 12,2M12,4A3,3 0 0,0 9,7V10H15V7A3,3 0 0,0 12,4Z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="button-strip">
+            <button id="btn-level" class="ctrl-btn" title="Level (O)">
+              <div class="btn-icon">O</div>
+            </button>
+            <button id="btn-mode" class="ctrl-btn" title="Mode (M)">
+              <div class="btn-icon">M</div>
+            </button>
+            <button id="btn-shift" class="ctrl-btn" title="Shift/PF (<<PF)">
+              <div class="btn-icon">PF</div>
+            </button>
+            <button id="btn-down" class="ctrl-btn" title="Down">
+              <div class="btn-icon">▼</div>
+            </button>
+            <button id="btn-up" class="ctrl-btn" title="Up">
+              <div class="btn-icon">▲</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard/Simulation Controls (External to Device) -->
+      <div class="dashboard">
+        <section class="info-panel">
+          <h1>Controlador Omron E5CC</h1>
+          <p class="subtitle">Simulador de Alta Fidelidad para Instrumentación Industrial</p>
+          <div class="tech-specs">
+            <span class="badge">PID 2-DOF</span>
+            <span class="badge">AT-2 Tuning</span>
+            <span class="badge">Termopar K</span>
+          </div>
+        </section>
+
+        <section class="simulation-view">
+          <h3>Estado del Proceso</h3>
+          <div class="process-graph">
+            <div id="mv-bar-container">
+              <label>MV (Salida): <span id="mv-percent">0</span>%</label>
+              <div class="progress-bg">
+                <div id="mv-fill" class="progress-fill"></div>
+              </div>
+            </div>
+            <canvas id="process-chart"></canvas>
+          </div>
+        </section>
+
+        <section class="external-controls">
+          <h3>Sensor de Sonido (Micrófono)</h3>
+          <div class="control-group">
+            <button id="btn-activate-mic" class="toggle-btn ok" style="background: var(--accent); margin-bottom: 10px;">
+              Activar Micrófono como Sensor
+            </button>
+            <label>Sensibilidad del Micrófono</label>
+            <input type="range" id="input-mic-gain" min="0" max="500" value="100">
+          </div>
+
+          <h3>Perturbaciones del Sistema</h3>
+          <div class="control-group">
+            <label>Temperatura Ambiente (°C)</label>
+            <input type="range" id="input-ambient" min="0" max="50" value="25">
+            <span id="ambient-val">25</span>
+          </div>
+          <div class="control-group">
+            <label>Carga Térmica (Enfriamiento)</label>
+            <input type="range" id="input-load" min="0.1" max="5" step="0.1" value="1">
+            <span id="load-val">1.0</span>
+          </div>
+          <div class="control-group">
+            <button id="btn-toggle-sensor" class="toggle-btn ok">Sensor Conectado</button>
+          </div>
+          <div class="control-group">
+            <button id="btn-open-manual" class="manual-btn">📖 MANUAL TÉCNICO</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Modal Overlay -->
+  <div id="manual-modal" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Manual de Operación Omron E5CC</h2>
+        <button id="btn-close-manual" class="close-btn">&times;</button>
+      </header>
+      <div class="modal-body">
+        <section>
+          <h3>1. Pantalla del Controlador</h3>
+          <p><strong>PV (Blanco):</strong> Valor de Proceso. Es la temperatura actual del sensor.</p>
+          <p><strong>SV (Verde):</strong> Valor de Consigna. Es la temperatura que queremos alcanzar.</p>
+        </section>
+
+        <section>
+          <h3>2. Navegación de Menús</h3>
+          <div class="menu-table">
+            <div class="menu-row">
+              <strong>Operación</strong>
+              <span>Nivel por defecto. Cambia la consigna (SV) con ▲ y ▼.</span>
+            </div>
+            <div class="menu-row">
+              <strong>Ajuste</strong>
+              <span>Pulsa <strong>O</strong> menos de 1 segundo. Configura PID y Autotuning.</span>
+            </div>
+            <div class="menu-row">
+              <strong>Configuración</strong>
+              <span>Mantén <strong>O</strong> durante 3 segundos. El control se detiene por seguridad.</span>
+            </div>
+            <div class="menu-row">
+              <strong>Protección</strong>
+              <span>Mantén <strong>O</strong> + <strong>M</strong> durante 3 segundos. Bloquea parámetros.</span>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3>3. Parámetros Principales</h3>
+          <ul>
+            <li><strong>At (Autotuning):</strong> Sintonización automática de PID. Parpadea el LED TUNE.</li>
+            <li><strong>P (Proporcional):</strong> Banda de potencia. Menor valor = más agresivo.</li>
+            <li><strong>I (Integral):</strong> Elimina el error residual. Valores altos suavizan la respuesta.</li>
+            <li><strong>d (Derivativo):</strong> El "freno". Evita que la temperatura se pase de largo.</li>
+            <li><strong>HyS (Histéresis):</strong> Margen de error solo para modo ON/OFF.</li>
+            <li><strong>CntL:</strong> Selecciona entre control PID o ON/OFF.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>4. Funciones del Simulador</h3>
+          <p>Este simulador permite usar el <strong>Micrófono</strong> como fuente de calor externa para probar la
+            capacidad de respuesta del PID ante perturbaciones.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

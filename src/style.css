@@ -1,0 +1,533 @@
+:root {
+  --chassis-bg: #1a1a1a;
+  --bezel-color: #222;
+  --display-bg: #050505;
+  --pv-color: #f0f0f0;
+  /* White PV */
+  --sv-color: #1ed760;
+  /* Green SV */
+  --led-red: #ff3b30;
+  --led-green: #34c759;
+  --led-off: #333;
+  --btn-bg: #2a2a2a;
+  --btn-active: #444;
+  --accent: #007aff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0f111a;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.simulator-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 1200px;
+}
+
+/* Omron E5CC Physical Chassis Simulation */
+.e5cc-chassis {
+  width: 320px;
+  height: 320px;
+  background-color: var(--chassis-bg);
+  border-radius: 8px;
+  padding: 24px;
+  position: relative;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    inset 0 2px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.5);
+  border: 2px solid #111;
+}
+
+/* Front Panel Aesthetics */
+.front-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 1px;
+  padding: 0 4px;
+}
+
+.brand {
+  color: #f0f0f0;
+}
+
+/* Display Area */
+.display-area {
+  background-color: #000;
+  background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 3px 100%;
+  border-radius: 4px;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  grid-template-rows: 1fr auto;
+  padding: 15px;
+  gap: 10px;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 1),
+    inset 0 2px 10px rgba(0, 255, 255, 0.05);
+  border: 1px solid #222;
+  position: relative;
+  overflow: hidden;
+}
+
+.display-area::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 2;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Status LEDs */
+.status-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 7px;
+  font-weight: 700;
+  color: #444;
+}
+
+.indicator {
+  padding: 2px;
+  transition: all 0.2s;
+}
+
+.indicator.active {
+  color: var(--led-red);
+  text-shadow: 0 0 5px var(--led-red);
+}
+
+#ind-out1.active,
+#ind-out2.active,
+#ind-tune.active {
+  color: #ff9500;
+  /* Tuning often orange/yellow */
+}
+
+#ind-tune.active {
+  animation: blink-fast 0.5s infinite;
+}
+
+@keyframes blink-fast {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Digits */
+.digits-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.segment-display {
+  font-family: 'Orbitron', monospace;
+  display: block;
+  text-align: right;
+  letter-spacing: 2px;
+  font-weight: 700;
+  transition: color 0.3s;
+  user-select: none;
+}
+
+.pv-display {
+  font-size: 52px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.sv-display {
+  font-size: 36px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.blink {
+  animation: blink-fast 0.5s infinite;
+}
+
+.white {
+  color: var(--pv-color);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.green {
+  color: var(--sv-color);
+  text-shadow: 0 0 10px rgba(30, 215, 96, 0.3);
+}
+
+/* Bottom Area */
+.bottom-indicators {
+  grid-column: 1 / span 2;
+  display: flex;
+  gap: 10px;
+  font-size: 7px;
+  font-weight: 700;
+  color: #444;
+  border-top: 1px solid #222;
+  padding-top: 6px;
+  align-items: center;
+}
+
+.indicator.icon {
+  margin-left: auto;
+}
+
+/* Buttons */
+.button-strip {
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 5px;
+}
+
+.ctrl-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #444 0%, #222 100%);
+  border: 1px solid #111;
+  border-radius: 6px;
+  color: #888;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 4px 0 #111,
+    0 5px 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.05s;
+  position: relative;
+  top: 0;
+}
+
+.ctrl-btn:active,
+.ctrl-btn.active {
+  top: 2px;
+  box-shadow:
+    0 2px 0 #111,
+    0 2px 5px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, #222 0%, #333 100%);
+  color: #fff;
+}
+
+.btn-icon {
+  pointer-events: none;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Specific button icons */
+#btn-level .btn-icon {
+  font-size: 14px;
+}
+
+#btn-mode .btn-icon {
+  font-size: 14px;
+}
+
+#btn-shift .btn-icon {
+  font-size: 10px;
+}
+
+/* Dashboard Styles */
+.dashboard {
+  background: rgba(40, 44, 52, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  flex: 1;
+  min-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.tech-specs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.badge {
+  background: #333;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #007aff;
+  border: 1px solid #444;
+}
+
+.process-graph {
+  margin: 20px 0;
+  background: #000;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+#process-chart {
+  width: 100%;
+  height: 180px;
+}
+
+.progress-bg {
+  width: 100%;
+  height: 8px;
+  background: #222;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #007aff, #5856d6);
+  transition: width 0.3s ease;
+}
+
+.control-group {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: #888;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.toggle-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.toggle-btn.ok {
+  background: #34c759;
+  color: #fff;
+}
+
+.toggle-btn.err {
+  background: #ff3b30;
+  color: #fff;
+}
+
+/* Manual Button */
+.manual-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: #000;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.manual-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: none;
+  /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: #1e1e2e;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  color: #fbbf24;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+.modal-body {
+  padding: 25px;
+  overflow-y: auto;
+  color: #d1d5db;
+  line-height: 1.6;
+}
+
+.modal-body section {
+  margin-bottom: 25px;
+}
+
+.modal-body h3 {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.menu-table {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.menu-row {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.menu-row strong {
+  width: 120px;
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.modal-body ul li {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+#mv-bar-container {
+  margin-bottom: 15px;
+}
+
+#mv-percent {
+  font-weight: bold;
+  color: #fff;
+}
